@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.test</groupId>
+    <artifactId>maven-plexus-minimal</artifactId>
+    <version>0.0.1</version>
+
+    <name>Maven Plexus Minimal Example</name>
+    <description>A minimal example of a weirdness in plexus-containers.</description>
+    <url>https://github.com/Vogel612/maven-plexus-minimal</url>
+
+    <developers>
+        <developer>
+            <name>Clemens Lieb</name>
+            <email>vogel612@gmx.de</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/Vogel612/maven-plexus-minimal.git</connection>
+        <developerConnection>scm:git:https://github.com/Vogel612/maven-plexus-minimal.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <!-- Project Properties -->
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.build.extractedDir>extracted-sources</project.build.extractedDir>
+
+        <aetherVersion>1.1.0</aetherVersion>
+        <mavenVersion>3.1.1</mavenVersion>
+        <wagonVersion>1.0</wagonVersion>
+        <plexus.outputFile>${project.build.outputDirectory}/META-INF/plexus/components.xml</plexus.outputFile>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.16</version>
+        </dependency>
+
+        <dependency>
+            <!-- Required for EntityReplacementMap when reading Pom-Files -->
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.24</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-api</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-util</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-impl</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-connector-basic</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-file</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-http</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-wagon</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh</artifactId>
+            <version>${wagonVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>1.7.1</version>
+                <executions>
+                    <execution>
+                        <id>process-classes</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>generate-metadata</goal>
+                        </goals>
+                        <configuration>
+                            <generatedMetadata>${plexus.outputFile}</generatedMetadata>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>process-test-classes</id>
+                        <goals>
+                            <goal>generate-test-metadata</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>merge-descriptors</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>merge-metadata</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <output>${plexus.outputFile}</output>
+                    <descriptors>
+                        <descriptor>${plexus.outputFile}</descriptor>
+                        <!-- FIXME because apparently merge-metadata doesn't support any useful stuff, we need to manually maintain that list -->
+                        <!--./aether-transport-wagon-1.1.0.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/aether-transport-wagon-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./maven-aether-provider-3.1.0.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/maven-aether-provider-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./maven-artifact-manager-2.2.1.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/maven-compat-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./maven-core-3.1.1.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/maven-core-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./maven-model-builder-3.1.0.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/maven-model-builder-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./maven-settings-builder-3.1.1.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/maven-settings-builder-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./org.eclipse.sisu.plexus-0.0.0.M2a.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/org.eclipse.sisu.plexus-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./plexus-cipher-1.4.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/plexus-cipher-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./plexus-interactivity-api-1.0-alpha-6.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/plexus-interactivity-api-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./plexus-sec-dispatcher-1.3.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/plexus-sec-dispatcher-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./wagon-ssh-common-1.0.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/wagon-ssh-common-jar/META-INF/plexus/components.xml</descriptor>
+                        <!--./wagon-ssh-1.0.jar.d/META-INF/plexus/components.xml-->
+                        <descriptor>${project.build.directory}/${project.build.extractedDir}/wagon-ssh-jar/META-INF/plexus/components.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includes>**/components.xml</includes>
+                            <outputDirectory>${project.build.directory}/${project.build.extractedDir}</outputDirectory>
+                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
+                            <stripClassifier>true</stripClassifier>
+                            <prependGroupId>false</prependGroupId>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.13</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-core</artifactId>
+                        <version>1.4</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>
